@@ -12,8 +12,8 @@ class App extends React.Component {
       minutes: 0,
       seconds: 60,
       timerState: "",
+      timeRemaining: 0,
     };
-    // this.startTimer = this.startTimer.bind(this);
     this.timer = setInterval(() => this.startTimer(), props.timeout || 1000);
   }
 
@@ -23,11 +23,10 @@ class App extends React.Component {
     } else if (
       this.state.hours == 0 &&
       this.state.minutes == 0 &&
-      this.state.seconds == 0
+      this.state.seconds == 0 &&
+      this.state.showInput == false
     ) {
       alert("Timer Finished");
-    } else {
-      console.log("I AM IN THE DEFUALT CASE");
     }
   }
 
@@ -37,6 +36,7 @@ class App extends React.Component {
     var hours = Math.floor(enteredVal / 60);
     var minutes = Math.floor(enteredVal - (hours * 3600) / 60);
     var seconds = Math.floor(enteredVal * 60 - hours * 3600 - minutes * 60);
+    console.log(hours, minutes, seconds);
     if (hours < 10) {
       hours = "0" + hours;
     }
@@ -48,6 +48,22 @@ class App extends React.Component {
     }
     if (seconds == 0) {
       seconds = 60;
+      if (minutes == 0) {
+        minutes = 0;
+      } else {
+        minutes = minutes - 1;
+      }
+    }
+    if (minutes == 0) {
+      minutes = 0;
+    }
+    if (hours == 0) {
+      if ((hours == 0) & (minutes == 0)) {
+        hours = 0;
+        minutes = 59;
+      } else {
+        hours = 0;
+      }
     }
     console.log(hours, " : ", minutes, " : ", seconds);
     this.setState({
@@ -85,18 +101,39 @@ class App extends React.Component {
     );
   };
 
-  startTime = () => {
+  startTime = (event) => {
+    event.preventDefault();
     this.setState({ timerState: "start" });
+  };
+
+  stopTimer = (event) => {
+    event.preventDefault();
+    this.setState({
+      timerState: "stop",
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      showInput: true,
+    });
+  };
+
+  pauseTimer = (event) => {
+    event.preventDefault();
+    this.setState({ timerState: "pause" });
   };
 
   renderButtonGroup = () => {
     return (
       <ButtonGroup aria-label="Basic example">
-        <Button variant="secondary" onClick={(event) => this.startTime()}>
+        <Button variant="secondary" onClick={(event) => this.startTime(event)}>
           Start
         </Button>
-        <Button variant="secondary">Stop</Button>
-        <Button variant="secondary">Pause</Button>
+        <Button variant="secondary" onClick={(event) => this.stopTimer(event)}>
+          Stop
+        </Button>
+        <Button variant="secondary" onClick={(event) => this.pauseTimer(event)}>
+          Pause
+        </Button>
       </ButtonGroup>
     );
   };
@@ -125,6 +162,12 @@ class App extends React.Component {
     }
   };
 
+  calculatePercentageofTimeRemaining = (hours, minutes, seconds) => {
+    let timeLeftInSeconds = 0;
+    timeLeftInSeconds = hours * 60 * 60 + minutes * 60 + seconds;
+    return timeLeftInSeconds;
+  };
+
   countDown = () => {
     let seconds = this.state.seconds - 1;
     let minutes = this.state.minutes;
@@ -134,12 +177,30 @@ class App extends React.Component {
       minutes = minutes - 1;
     }
     if (minutes == 0) {
-      hours = hours - 1;
+      if (hours == 0) {
+        hours = 0;
+      } else {
+        hours = hours - 1;
+      }
     }
+    if (hours == 0) {
+      if (hours == 0 && minutes == 0) {
+        hours = 0;
+        minutes = 59;
+      } else {
+        hours = 0;
+      }
+    }
+    let timeLeftInSeconds = this.calculatePercentageofTimeRemaining(
+      hours,
+      minutes,
+      seconds
+    );
     this.setState({
       seconds: seconds,
       minutes: minutes,
       hours: hours,
+      timeRemaining: timeLeftInSeconds,
     });
   };
 
