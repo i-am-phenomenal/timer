@@ -13,6 +13,17 @@
   }
 }
 
+.inputClass {
+  top: 100px;
+  width: 500px;
+  left: 350px;
+}
+
+.timerClass {
+  top: 300px;
+  left: 350px;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
