@@ -1,6 +1,12 @@
 import React from "react";
 import "./App.css";
-import { ButtonGroup, Button, InputGroup, FormControl } from "react-bootstrap";
+import {
+  ProgressBar,
+  ButtonGroup,
+  Button,
+  InputGroup,
+  FormControl,
+} from "react-bootstrap";
 
 class App extends React.Component {
   constructor(props) {
@@ -36,15 +42,23 @@ class App extends React.Component {
     var hours = Math.floor(enteredVal / 60);
     var minutes = Math.floor(enteredVal - (hours * 3600) / 60);
     var seconds = Math.floor(enteredVal * 60 - hours * 3600 - minutes * 60);
-    console.log(hours, minutes, seconds);
-    if (hours < 10) {
-      hours = "0" + hours;
-    }
-    if (minutes < 10) {
-      minutes = "0" + minutes;
-    }
-    if (seconds < 10) {
-      seconds = "0" + seconds;
+    // if (hours < 10) {
+    //   hours = "0" + hours;
+    // }
+    // if (minutes < 10) {
+    //   minutes = "0" + minutes;
+    // }
+    // if (seconds < 10) {
+    //   seconds = "0" + seconds;
+    // }
+    // console.log(this.state.timeRemaining * 60, "DDDDDDDDDDDDDDDDDDD");
+    if (hours == 0) {
+      if ((hours == 0) & (minutes == 0)) {
+        hours = 0;
+        minutes = 59;
+      } else {
+        hours = 0;
+      }
     }
     if (seconds == 0) {
       seconds = 60;
@@ -57,15 +71,6 @@ class App extends React.Component {
     if (minutes == 0) {
       minutes = 0;
     }
-    if (hours == 0) {
-      if ((hours == 0) & (minutes == 0)) {
-        hours = 0;
-        minutes = 59;
-      } else {
-        hours = 0;
-      }
-    }
-    console.log(hours, " : ", minutes, " : ", seconds);
     this.setState({
       showInput: false,
       hours: hours,
@@ -124,7 +129,7 @@ class App extends React.Component {
 
   renderButtonGroup = () => {
     return (
-      <ButtonGroup aria-label="Basic example">
+      <ButtonGroup aria-label="Basic example" className="buttonGroupClass">
         <Button variant="secondary" onClick={(event) => this.startTime(event)}>
           Start
         </Button>
@@ -143,7 +148,7 @@ class App extends React.Component {
     let minutes = this.state.minutes;
     let seconds = this.state.seconds;
     return (
-      <div style={{ top: "100px", left: "200px" }}>
+      <div className="timerClass">
         <h1>
           {hours} : {minutes} : {seconds}
         </h1>
@@ -164,17 +169,34 @@ class App extends React.Component {
 
   calculatePercentageofTimeRemaining = (hours, minutes, seconds) => {
     let timeLeftInSeconds = 0;
+    let totalTimeInSeconds = this.state.timeInMinutes * 60;
+    // console.log(totalTimeInSeconds, "FFFFFFFFFFFFFF");
     timeLeftInSeconds = hours * 60 * 60 + minutes * 60 + seconds;
-    return timeLeftInSeconds;
+    let percentage = ((timeLeftInSeconds / totalTimeInSeconds) * 100).toFixed(
+      1
+    );
+    return percentage;
   };
 
   countDown = () => {
     let seconds = this.state.seconds - 1;
     let minutes = this.state.minutes;
     let hours = this.state.hours;
+    if (hours == 0) {
+      if (hours == 0 && minutes == 0) {
+        hours = 0;
+        // minutes = 59;
+      } else {
+        hours = 0;
+      }
+    }
     if (seconds == 0) {
       seconds = 60;
-      minutes = minutes - 1;
+      if (minutes == 0) {
+        minutes = 0;
+      } else {
+        minutes = minutes - 1;
+      }
     }
     if (minutes == 0) {
       if (hours == 0) {
@@ -183,14 +205,7 @@ class App extends React.Component {
         hours = hours - 1;
       }
     }
-    if (hours == 0) {
-      if (hours == 0 && minutes == 0) {
-        hours = 0;
-        minutes = 59;
-      } else {
-        hours = 0;
-      }
-    }
+
     let timeLeftInSeconds = this.calculatePercentageofTimeRemaining(
       hours,
       minutes,
@@ -204,8 +219,29 @@ class App extends React.Component {
     });
   };
 
+  renderProgressBar = () => {
+    let percentage = this.state.timeRemaining;
+    console.log(percentage, "PPPPPPPP");
+    if (this.state.showInput) {
+      return "";
+    } else {
+      return (
+        <ProgressBar
+          className="progressBar"
+          now={percentage}
+          label={percentage + "%"}
+        />
+      );
+    }
+  };
+
   render() {
-    return <div>{this.renderInputOrTimer()}</div>;
+    return (
+      <div>
+        {this.renderInputOrTimer()}
+        {this.renderProgressBar()}
+      </div>
+    );
   }
 }
 
